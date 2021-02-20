@@ -103,6 +103,7 @@ class MySQLLogging:
         """
         cur = self.db.cursor()
         rows = 0
+        self.master.debugLog(10,"MySQLLog", "Begin: "+str(data.get("dateBegin", 0))+" End: "+str(data.get("dateEnd", 0)))
         try:
             rows = cur.execute(
                 query,
@@ -125,6 +126,27 @@ class MySQLLogging:
             )
         cur.close()
         return list(result)
+
+    def queryEnergyNotAvailable(self, data):
+        # Check if this status is muted
+        if self.configLogging["mute"].get("GreenEnergy", 0):
+            return None
+        result = self.queryGreenEnergy(data)
+        energy = 0
+        i = 0
+        while i<len(result):
+            genW = result[i][1]
+            conW = result[i][2]
+            chgW = result[i][3]
+
+            energy = energy + conW - chgW - genW
+
+            i=i+1
+        
+        energy = energy / len(result) 
+
+        return energy
+
 
 
     def slavePower(self, data):

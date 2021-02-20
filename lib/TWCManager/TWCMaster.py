@@ -289,15 +289,21 @@ class TWCMaster:
     def getScheduledAmpsTimeFlex(self):
         startHour = self.getScheduledAmpsStartHour()
         days = self.getScheduledAmpsDaysBitmap()
+        self.debugLog(10,"TWCMaster","Ajusta getScheduledAmpsTimeFlex")
+        if not self.getScheduledAmpsFlexStart():
+            self.debugLog(10,"TWCMaster","No esta activado Flex")
+          
         if (
             startHour >= 0
             and self.getScheduledAmpsFlexStart()
             and self.countSlaveTWC() == 1
         ):
+            self.debugLog(10,"TWCMaster","Ajusta vehiculo conectado")
             # Try to charge at the end of the scheduled time
             slave = next(iter(self.slaveTWCs.values()))
             vehicle = slave.getLastVehicle()
             if vehicle != None:
+                self.debugLog(10,"TWCMaster","Ajusta hora inicio")
                 amps = self.getScheduledAmpsMax()
                 watts = self.convertAmpsToWatts(amps) * self.getRealPowerFactor(amps)
                 hoursForFullCharge = self.getScheduledAmpsBatterySize() / (watts / 1000)

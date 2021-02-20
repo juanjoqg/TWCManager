@@ -307,6 +307,8 @@ def CreateHTTPHandlerClass(master):
     def do_API_POST(self):
 
         self.debugLogAPI("Starting API POST")
+  
+        master.debugLog(10,"HTTP","API_POST: "+self.url.path)
 
         if self.url.path == "/api/chargeNow":
             data = json.loads(self.post_data.decode("UTF-8"))
@@ -372,6 +374,7 @@ def CreateHTTPHandlerClass(master):
                 data.get("flexBatterySize", 100)
             )  # using 100 as default, because with this every available car at moment should be finished with charging at the ending time
             flexStart = int(data.get("flexStartEnabled", False))
+            master.debugLog(10,"HTTP","valor flexStart: "+str(flexStart))
             weekDaysBitmap = (
                     (1 if monday else 0)
                     + (2 if tuesday else 0)
@@ -639,8 +642,8 @@ def CreateHTTPHandlerClass(master):
 
         if self.url.path == "/graphs/dates":
             # User has submitted dates to graph this period.
-            objIni = datetime.strptime(self.getFieldValue("dateIni"), "%Y-%m-%dT%H:%M:%S")
-            objEnd = datetime.strptime(self.getFieldValue("dateEnd"), "%Y-%m-%dT%H:%M:%S")
+            objIni = datetime.strptime(self.getFieldValue("dateIni"), "%Y-%m-%dT%H:%M")
+            objEnd = datetime.strptime(self.getFieldValue("dateEnd"), "%Y-%m-%dT%H:%M")
             self.process_save_graphs(objIni,objEnd)
             self.send_response(302)
             self.send_header("Location", "/graphsP")
@@ -953,8 +956,8 @@ def CreateHTTPHandlerClass(master):
 
         data = {}
         data[0] = {
-                "initial":init.strftime("%Y-%m-%dT%H:%M:%S"),
-                "end":end.strftime("%Y-%m-%dT%H:%M:%S"),
+                "initial":init.strftime("%Y-%m-%dT%H:%M"),
+                "end":end.strftime("%Y-%m-%dT%H:%M"),
                 }
         i=1
         while i<len(result):
