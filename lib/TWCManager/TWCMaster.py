@@ -291,8 +291,8 @@ class TWCMaster:
         endHour = self.getScheduledAmpsEndHour()
         if startHour < endHour or ltNow.tm_hour > endHour:
            return dayName 
-     
-        for i in range(0,6):
+        yesterday = dayName 
+        for i in range(0,7):
            if daysNames[i] == dayName:
               if i > 0:
                  yesterday = daysNames[i-1]
