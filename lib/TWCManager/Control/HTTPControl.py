@@ -760,7 +760,7 @@ def CreateHTTPHandlerClass(master):
 
         page += "<td>" + self.checkBox("flex"+suffix, 
                 today.get("flex", 0)) + "</td>"
-        page += "<td>Flex Charge</td>"
+        page += "<td>Flex Charge </td>"
         if master.getPricingInAdvanceAvailable():
             page += "<td>" + self.checkBox("cheaper"+suffix,
                     today.get("cheaper", 0)) + "</td>"

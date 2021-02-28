@@ -189,7 +189,7 @@
         # 9 includes raw RS-485 messages transmitted and received (2-3 per sec)
         # 10 is all info.
         # 11 is more than all info.  ;)
-        "debugLevel": 10,
+        "debugLevel": 1,
 
         # Choose whether to display milliseconds after time on each line of debug info.
         "displayMilliseconds": false,
@@ -389,7 +389,7 @@
             "enabled": true
         },
         "FileLogger": {
-          "enabled": true,
+          "enabled": false,
           # The path under which the various log files will be stored.
           # Make sure the user which runs the TWCManager process can write to
           # this directory.
@@ -426,7 +426,7 @@
             }
         },
         "MySQL": {
-            "enabled": true,
+            "enabled": false,
             "host": "localhost",
             "database": "TWCManager",
             "username": "",
@@ -473,8 +473,10 @@
             }
         },
         "PVPCes": {
-            # Enable this module if you are a customer of aWATTar in Austria
+            # Enable this module if you are a customer of PVPC in Spain
+            # select your tarif 2.0A - 2.0DHA - 2.0DHS
             "enabled": false,
+            "tarif": "2.0DHA",
             "token": ""
         }
 
@@ -504,7 +506,7 @@
 
         },
         "Fronius": {
-            "enabled": true,
+            "enabled": false,
             "serverIP": "192.168.0.17"
         },
         "HASS": {

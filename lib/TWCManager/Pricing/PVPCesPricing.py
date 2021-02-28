@@ -21,6 +21,7 @@ class PVPCesPricing:
     timeout = 10
     headers = {}
     weekImportPrice = {}
+    tarif = "2.0A"
 
     def __init__(self, master):
 
@@ -37,6 +38,7 @@ class PVPCesPricing:
             self.configPvpc = {}
 
         self.status = self.configPvpc.get("enabled", self.status)
+        self.tarif = self.configPvpc.get("tarif","2.0A")
         self.debugLevel = self.configConfig.get("debugLevel", 0)
 
         token=self.configPvpc.get("token")
@@ -115,8 +117,13 @@ class PVPCesPricing:
             # we are going to fetch a week + tomorrow
             ini=str(lastweek.year)+"-"+str(lastweek.month)+"-"+str(lastweek.day)+"T"+"00:00:00"
             end=str(tomorrow.year)+"-"+str(tomorrow.month)+"-"+str(tomorrow.day)+"T"+"23:00:00"
-
-            url = "https://api.esios.ree.es/indicators/1014?start_date="+ini+"&end_date="+end
+            
+            if self.tarif == "2.0DHA":
+               url = "https://api.esios.ree.es/indicators/1014?start_date="+ini+"&end_date="+end
+            elif self.tarif == "2.0DHS":
+               url = "https://api.esios.ree.es/indicators/1015?start_date="+ini+"&end_date="+end
+            else:
+               url = "https://api.esios.ree.es/indicators/1013?start_date="+ini+"&end_date="+end
 
             try:
                 r = self.requests.get(url,headers=self.headers, timeout=self.timeout)
@@ -150,9 +157,9 @@ class PVPCesPricing:
               if ltNow.tm_wday < 5:
                  i=ltNow.tm_wday+2 
               elif ltNow.tm_wday == 5:
-                 i=1 
+                 i=0
               else:
-                 i=0 
+                 i=1 
 
               try:
                 for day in range(0,8):

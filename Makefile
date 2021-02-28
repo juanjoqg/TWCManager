@@ -35,3 +35,4 @@ ifeq (,$(wildcard /etc/twcmanager/config.json))
 endif
 	$(SUDO) chown root:pi /etc/twcmanager -R
 	$(SUDO) chmod 775 /etc/twcmanager
+	$(SUDO) chmod 775 /etc/twcmanager/config.json
