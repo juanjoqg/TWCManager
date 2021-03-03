@@ -161,7 +161,6 @@ def CreateHTTPHandlerClass(master):
             page += "<tr><th scope='row'>%02d</th>" % (i)
             for dayTn in range(0,7):
                 day=schedule[dayTn]
-
                 energyOffset = int(master.queryGreenEnergyWhDay(day,i))
                 ampsOffset = round(master.convertWattsToAmps(energyOffset),2)
                 futureColor=""

@@ -309,7 +309,7 @@ class MySQLLogging:
         """
         cur = self.db.cursor()
         wDay=0
-        for i in range(0,6):
+        for i in range(0,7):
            dayN=daysNames[i]
            if dayN == day:
               wDay = i
@@ -317,7 +317,7 @@ class MySQLLogging:
         if ltNow.tm_wday >= wDay:
            delta = ltNow.tm_wday-wDay
         else:
-           delta = 7-ltNow.tm_wday-wDay
+           delta = 7-(wDay-ltNow.tm_wday)
  
         init = datetime.now() - timedelta(days=delta)      
 

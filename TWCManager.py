@@ -819,7 +819,7 @@ while True:
                         # EU chargers need a spike to only 16A.  This value
                         # comes from a forum post and has not been directly
                         # tested.
-                        master.setSpikeAmps(16)
+                        master.setSpikeAmps(6)
 
                     if senderID == fakeTWCID:
                         debugLog(
