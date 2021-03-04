@@ -85,13 +85,48 @@ class SCT013:
                 txt=''
                 while self.arduino.inWaiting() > 0:
                        txt = str(self.arduino.readline())
-                        
-                txt2 = txt[txt.find("Potencia = ")+10:txt.find("Irms = ")]
-                txt2 = txt2.replace(' ','')
-                if not txt2:
-                     self.consumedW=0
-                else:
-                     self.consumedW=float(txt2)
+                       txt4 = str(self.arduino.readline())
+                try:            
+                   if txt.index("Potencia = "):
+                      txt2 = txt[txt.find("Potencia = ")+10:txt.find("Irms = ")]
+                      txt2 = txt2.replace(' ','')
+                      if not txt2:
+                           self.consumedW=0
+                      else:
+                           self.consumedW=float(txt2)
+                except:
+                 try:
+                   if txt4.index("Potencia = "):
+                      txt2 = txt4[txt4.find("Potencia = ")+10:txt4.find("Irms = ")]
+                      txt2 = txt2.replace(' ','')
+                      if not txt2:
+                           self.consumedW=0
+                      else:
+                           self.consumedW=float(txt2)
+
+                 except:
+                   self.consumedW=self.consumedW
+
+                try:
+                   if txt.index("Potencia2 = "):
+                      txt3 = txt[txt.find("Potencia2 = ")+11:txt.find("Irms2 = ")]
+                      txt3 = txt3.replace(' ','')
+                      if not txt3:
+                           self.generatedW=0
+                      else:
+                           self.generatedW=float(txt3)
+                except:
+                 try:
+                   if txt4.index("Potencia2 = "):
+                      txt3 = txt4[txt4.find("Potencia2 = ")+11:txt4.find("Irms2 = ")]
+                      txt3 = txt3.replace(' ','')
+                      if not txt3:
+                           self.generatedW=0
+                      else:
+                           self.generatedW=float(txt3)
+
+                 except:
+                   self.generatedW=self.generatedW
 
             except (KeyError, TypeError) as e:
                 self.debugLog(
