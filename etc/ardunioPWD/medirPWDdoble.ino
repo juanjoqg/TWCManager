@@ -35,7 +35,7 @@ void loop()
   Serial.print("Potencia = ");
   Serial.print(potencia);
   Serial.print("    Irms = ");
-  Serial.println(Irms);
+  Serial.print(Irms);
     // Mostramos la información por el monitor serie
   Serial.print("Potencia2 = ");
   Serial.print(potencia2);
