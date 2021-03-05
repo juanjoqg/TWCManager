@@ -593,6 +593,11 @@
             "enabled": false,
             "token": ""
         },
+      # The SCT013 module allows to get the consumption and generation through current sensors SCT-013
+      # SCT-03 should be connected to arduino analog IN pins
+      # Consumption: A0, A1, A2
+      # Generation: A3, A4, A5
+      # For monophase just A0 and A3 should be used
         "SCT013": {
             "enabled": false,
             "arduinoPort": "/dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0"

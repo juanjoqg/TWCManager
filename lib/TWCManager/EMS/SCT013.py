@@ -23,6 +23,9 @@ class SCT013:
     timeout = 10
     voltage = 0
     arduino=0
+    threePhases=False
+    consumption=False
+    generation=False
 
     def __init__(self, master):
         self.master = master
@@ -32,11 +35,20 @@ class SCT013:
         except KeyError:
             self.configConfig = {}
         try:
+            
+            if self.configConfig.get("numberOfPhases",1)==3:
+               self.threePhases = True
+
+        except KeyError:
+            self.threePhases = False
+        try:
             self.configSCT013 = master.config["sources"]["SCT013"]
         except KeyError:
             self.configSCT013 = {}
         self.debugLevel = self.configConfig.get("debugLevel", 0)
         self.status = self.configSCT013.get("enabled", False)
+        self.consumption = self.configSCT013.get("consumption", False)
+        self.generation = self.configSCT013.get("generation", False)
         self.arduinoUSB = self.configSCT013.get("arduinoPort", None)
 
         # Unload if this module is disabled or misconfigured
@@ -85,26 +97,50 @@ class SCT013:
                 txt=''
                 while self.arduino.inWaiting() > 0:
                       txt = str(self.arduino.readline())
-                try:            
-                   if txt.index("Potencia = "):
-                      txt2 = txt[txt.find("Potencia = ")+10:txt.find("Irms = ")]
-                      txt2 = txt2.replace(' ','')
-                      if not txt2:
-                           self.consumedW=0
-                      else:
-                           self.consumedW=float(txt2)
+                try:       
+                   if self.consumption:
+                      if txt.index("IrmsA0 = "):
+                         txt2 = txt[txt.find("IrmsA0 = ")+9:txt.find(" EndA0")]
+                         txt2 = txt2.replace(' ','')
+                         if not txt2:
+                            self.consumedW=0
+                         else:
+                            self.consumedW=self.master.convertAmpsToWatts(float(txt2))
+                      if txt.index("IrmsA1 = ") and self.threePhases:
+                         txt2 = txt[txt.find("IrmsA1 = ")+9:txt.find(" EndA1")]
+                         txt2 = txt2.replace(' ','')
+                         if txt2:
+                            self.consumedW=self.consumedW+self.master.convertAmpsToWatts(float(txt2))
+                      if txt.index("IrmsA2 = ") and self.threePhases:
+                         txt2 = txt[txt.find("IrmsA2 = ")+9:txt.find(" EndA2")]
+                         txt2 = txt2.replace(' ','')
+                         if txt2:
+                            self.consumedW=self.consumedW+self.master.convertAmpsToWatts(float(txt2))
                 except:
+                   self.master.debugLog(10, "SCT013","Phase consumption not found")
                    self.consumedW=self.consumedW
 
                 try:
-                   if txt.index("Potencia2 = "):
-                      txt3 = txt[txt.find("Potencia2 = ")+11:txt.find("Irms2 = ")]
-                      txt3 = txt3.replace(' ','')
-                      if not txt3:
-                           self.generatedW=0
-                      else:
-                           self.generatedW=float(txt3)
+                   if self.generation:
+                      if txt.index("IrmsA3 = "):
+                         txt3 = txt[txt.find("IrmsA3 = ")+9:txt.find(" EndA3")]
+                         txt3 = txt3.replace(' ','')
+                         if not txt3:
+                            self.generatedW=0
+                         else:
+                            self.generatedW=self.master.convertAmpsToWatts(float(txt3))
+                      if txt.index("IrmsA4 = ") and self.threePhases:
+                         txt3 = txt[txt.find("IrmsA4 = ")+9:txt.find(" EndA4")]
+                         txt3 = txt3.replace(' ','')
+                         if txt3:
+                            self.generatedW=self.generatedW+self.master.convertAmpsToWatts(float(txt3))
+                      if txt.index("IrmsA5 = ") and self.threePhases:
+                         txt3 = txt[txt.find("IrmsA5 = ")+9:txt.find(" EndA5")]
+                         txt3 = txt3.replace(' ','')
+                         if txt3:
+                            self.generatedW=self.generatedW+self.master.convertAmpsToWatts(float(txt3))
                 except:
+                   self.master.debugLog(10, "SCT013","Phase generation not found")
                    self.generatedW=self.generatedW
 
             except (KeyError, TypeError) as e:
