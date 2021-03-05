@@ -815,12 +815,12 @@ while True:
                         # charging limit imposed in an Oct 2017 Tesla car
                         # firmware update. See notes where
                         # spikeAmpsToCancel6ALimit is used.
-                        master.setSpikeAmps(21)
+                        master.setSpikeAmps(config["config"]["spikeAmpsToCancel6ALimit"])
                     else:
                         # EU chargers need a spike to only 16A.  This value
                         # comes from a forum post and has not been directly
                         # tested.
-                        master.setSpikeAmps(6)
+                        master.setSpikeAmps(config["config"]["spikeAmpsToCancel6ALimit"])
 
                     if senderID == fakeTWCID:
                         debugLog(

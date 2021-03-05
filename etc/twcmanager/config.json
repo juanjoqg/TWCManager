@@ -90,6 +90,12 @@
         # rates really does.
         "minAmpsPerTWC": 6,
 
+        # U.S. chargers need a spike to 21A to cancel a 6A charging limit imposed in an Oct 2017 Tesla car
+        # firmware update.
+        # EU chargers need a spike to only 16A.  This value comes from a forum post and has not been directly tested.
+        # At least with model 3 2020 it seems not longer needed and same minAmpsPerTWC value could be used
+        "spikeAmpsToCancel6ALimit": 16,
+
         # When you have more than one vehicle associated with the Tesla car API and
         # onlyChargeMultiCarsAtHome = True, cars will only be controlled by the API when
         # parked at home. For example, when one vehicle is plugged in at home and
