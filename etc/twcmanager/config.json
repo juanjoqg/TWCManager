@@ -597,9 +597,11 @@
       # SCT-03 should be connected to arduino analog IN pins
       # Consumption: A0, A1, A2
       # Generation: A3, A4, A5
-      # For monophase just A0 and A3 should be used
+      # For single phase just A0 and A3 should be used
         "SCT013": {
             "enabled": false,
+            "consumption": true,
+            "generation": false,
             "arduinoPort": "/dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0"
         }
 
