@@ -198,17 +198,23 @@ class PVPCesPricing:
         days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
         now=datetime.now()
         ltNow = time.localtime()
+
         if ltNow.tm_wday < 6:
            today=days[ltNow.tm_wday+1]
            if ltNow.tm_wday < 5:
               tomorrow=days[ltNow.tm_wday+2]
            else:
               tomorrow=days[2]
+           esterday = days[ltNow.tm_wday]
         else:
            today=days[0]
            tomorrow=days[1]
+        yesterday = days[ltNow.tm_wday]
 
-        
+        if end < ini:
+           tomorrow = today
+           today = yesterday
+
         minPriceHstart=ini
         ini = int(ini)
         end = int(end)

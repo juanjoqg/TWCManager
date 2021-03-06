@@ -23,6 +23,7 @@ class SCT013:
     timeout = 10
     voltage = 0
     arduino=0
+    arduinoIP=0
     threePhases=False
     consumption=False
     generation=False
@@ -50,13 +51,15 @@ class SCT013:
         self.consumption = self.configSCT013.get("consumption", False)
         self.generation = self.configSCT013.get("generation", False)
         self.arduinoUSB = self.configSCT013.get("arduinoPort", None)
+        self.arduinoIP = self.configSCT013.get("arduinoIP", None)
 
         # Unload if this module is disabled or misconfigured
         if (not self.status):
             self.master.releaseModule("lib.TWCManager.EMS", "SCT013")
             return None
 
-        self.arduino = serial.Serial(self.arduinoUSB,baudrate=9600, timeout = 3.0)
+        if self.arduinoUSB != None:
+           self.arduino = serial.Serial(self.arduinoUSB,baudrate=9600, timeout = 3.0)
 
     def debugLog(self, minlevel, message):
         self.master.debugLog(minlevel, "SCT013", message)
@@ -95,8 +98,16 @@ class SCT013:
 
             try:
                 txt=''
-                while self.arduino.inWaiting() > 0:
+
+                if self.arduinoUSB != None:
+                   while self.arduino.inWaiting() > 0:
                       txt = str(self.arduino.readline())
+                else:
+                   url = "http://"+self.arduinoIP
+                   r = self.requests.get(url, timeout=self.timeout)
+                   r.raise_for_status()
+                   txt = str(r.content)
+
                 try:       
                    if self.consumption:
                       if txt.index("IrmsA0 = "):
