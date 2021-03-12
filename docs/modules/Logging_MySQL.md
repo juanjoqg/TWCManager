@@ -78,6 +78,14 @@ CREATE TABLE green_energy (
   primary key(time)
 );
 
+CREATE TABLE green_energy_wh (
+  time datetime,
+  genWh DECIMAL(9,3),
+  conWh DECIMAL(9,3),
+  chgWh DECIMAL(9,3),
+  primary key(time)
+);
+
 CREATE TABLE slave_status (
   slaveTWC varchar(4), 
   time datetime, 
