@@ -1,4 +1,4 @@
-PROGRAM=/usr/bin/python3.7
+PROGRAM=/usr/bin/python$(python --version|cut -c8-10)
 PIDFILE=/etc/twcmanager/TWCManager.pid
 TWCMANAGER_PATH=/home/pi/TWCManager
 
