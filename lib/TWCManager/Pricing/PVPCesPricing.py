@@ -150,7 +150,7 @@ class PVPCesPricing:
                 )
                 return False
 
-            if r.json() and len(r.json()['indicator']['values']) >= 24*7:
+            if r.json() and len(r.json()['indicator']['values']) >= (24*7-1):
               #Update settings with the new prices info for week
               self.weekImportPrice = {}
               ltNow = time.localtime()
@@ -162,6 +162,7 @@ class PVPCesPricing:
                  i=1 
 
               try:
+                desfase=0
                 for day in range(0,8):
                    sufix = ""
                    if day > 6 and len(r.json()['indicator']['values'])>7*24:
@@ -169,11 +170,24 @@ class PVPCesPricing:
                       sufix = "next"
                    elif day > 6:
                       break
-                   if (self.weekImportPrice.get(sufix+days[i], None) == None):
+                   if (self.weekImportPrice.get(sufix+days[i], None) == None): 
                       self.weekImportPrice[sufix+days[i]] = {}
                     
                    for hour in range(0,24):
-                      self.weekImportPrice[sufix+days[i]][str(hour)]= round(r.json()['indicator']['values'][day*24+hour]['value']/1000,5)
+                      try:
+                         if int(str(r.json()['indicator']['values'][day*24+hour+desfase]['datetime'])[11:13]) > hour:
+                            self.weekImportPrice[sufix+days[i]][str(hour)]= 0
+                            desfase=desfase-1
+                            self.master.debugLog(4,"$PVPCes","Summer time change: "+str(r.json()['indicator']['values'][day*24+hour+desfase]['datetime']))
+                         elif int(str(r.json()['indicator']['values'][day*24+hour+desfase]['datetime'])[11:13]) < hour:
+                            desfase=desfase+1
+                            self.master.debugLog(4,"$PVPCes","Winter time change: "+str(r.json()['indicator']['values'][day*24+hour+desfase]['datetime']))
+                            self.weekImportPrice[sufix+days[i]][str(hour)]= round(r.json()['indicator']['values'][day*24+hour+desfase]['value']/1000,5)
+                         else:
+                            self.weekImportPrice[sufix+days[i]][str(hour)]= round(r.json()['indicator']['values'][day*24+hour+desfase]['value']/1000,5)
+                      except Exception as e:
+                         self.master.debugLog(4,"$PVPCes","Falta alguna hora: "+str(hour))
+                      
                    if i < 6:
                       i=i+1
                    else:
@@ -205,7 +219,6 @@ class PVPCesPricing:
               tomorrow=days[ltNow.tm_wday+2]
            else:
               tomorrow=days[2]
-           esterday = days[ltNow.tm_wday]
         else:
            today=days[0]
            tomorrow=days[1]
