@@ -20,7 +20,7 @@
         # 100 amp breaker * 0.8 = 80 here.
         # IF YOU'RE NOT SURE WHAT TO PUT HERE, ASK THE ELECTRICIAN WHO INSTALLED YOUR
         # CHARGER.
-        "wiringMaxAmpsAllTWCs": 32,
+        "wiringMaxAmpsAllTWCs": 6,
 
         # If all your chargers share a single circuit breaker, set wiringMaxAmpsPerTWC
         # to the same value as wiringMaxAmpsAllTWCs.
@@ -30,33 +30,7 @@
         # wiringMaxAmpsAllTWCs.
         # For example, if you have two TWCs each with a 50A breaker, set
         # wiringMaxAmpsPerTWC = 50 * 0.8 = 40 and wiringMaxAmpsAllTWCs = 40 + 40 = 80.
-        "wiringMaxAmpsPerTWC": 32,
-
-
-        # If you what to limit the power drawn from the Grid you need to set this
-        # maxAmpsAllowedFromGrid and extend the policy you what it to apply, i.e.:
-        # { "name": "Charge Now with Grid power limit",
-        #   "match": [
-        #       "settings.chargeNowAmps",
-        #       "settings.chargeNowTimeEnd",
-        #       "settings.chargeNowTimeEnd",
-        #   ],
-        #   "condition": ["gt", "gt", "gt"],
-        #   "value": [0, 0, "now"],
-        #   "background_task": "checkMaxPowerFromGrid",
-        #   "charge_amps": "settings.chargeNowAmps",
-        #   "charge_limit": "config.chargeNowLimit"},
-
-        # { "name": "Scheduled Charging with Grid power limit",
-        #   "match": [ "checkScheduledCharging()" ],
-        #   "condition": [ "eq" ],
-        #   "value": [ 1 ],
-        #   "background_task": "checkMaxPowerFromGrid",
-        #   "charge_amps": "settings.scheduledAmpsMax",
-        #   "charge_limit": "config.scheduledLimit"},
-
-        "maxAmpsAllowedFromGrid": 23,
-
+        "wiringMaxAmpsPerTWC": 6,
 
         # https://teslamotorsclub.com/tmc/threads/model-s-gen2-charger-efficiency-testing.78740/#post-1844789
         # says you're using 10.85% more power (91.75/82.77=1.1085) charging at 5A vs 40A,
@@ -88,13 +62,7 @@
         # can't reach that rate, so charging as fast as your wiring supports is best
         # from that standpoint.  It's not clear how much damage charging at slower
         # rates really does.
-        "minAmpsPerTWC": 6,
-
-        # U.S. chargers need a spike to 21A to cancel a 6A charging limit imposed in an Oct 2017 Tesla car
-        # firmware update.
-        # EU chargers need a spike to only 16A.  This value comes from a forum post and has not been directly tested.
-        # At least with model 3 2020 it seems not longer needed and same minAmpsPerTWC value could be used
-        "spikeAmpsToCancel6ALimit": 16,
+        "minAmpsPerTWC": 12,
 
         # When you have more than one vehicle associated with the Tesla car API and
         # onlyChargeMultiCarsAtHome = True, cars will only be controlled by the API when
@@ -112,7 +80,7 @@
         # Newer TWCs can report actual voltages.  For older TWCs, you can specify
         # what voltage should be assumed and whether the power is single (1) or
         # 3-phase.
-        "defaultVoltage": 230,
+        "defaultVoltage": 240,
         "numberOfPhases": 1,
 
         # As I observed different reactive power changing with the the amps used,
@@ -148,7 +116,7 @@
 
         # If you want to use start charging with greenEnergyFlexAmps as it delays stopping
         # you have to set this config to true
-        "useFlexAmpsToStartCharge": true,
+        "useFlexAmpsToStartCharge": false,
 
         # If the conditions for green energy briefly fail to match, how long should the
         # Track Green Energy policy continue to run?  (Mainly useful if you're adding
@@ -164,7 +132,7 @@
         # If your solar consumption value does include the charger and you don't
         # set this option, you'll see charging consistently stop after a short
         # time interval, due to the available amps being set below minimum charge.
-        "subtractChargerLoad": true,
+        "subtractChargerLoad": false,
 
         # The minChargeLevel parameter determines the minimum acceptable SOC
         # state for any monitored vehicle. If the SOC is below this value,
@@ -188,6 +156,7 @@
         #"scheduledLimit": 50,
         #"nonScheduledLimit": -1,
 
+        # Deprecated, use logLevel instead
         # Choose how much debugging info to output.
         # 0 is no output other than errors.
         # 1 is just the most useful info.
@@ -195,7 +164,26 @@
         # 9 includes raw RS-485 messages transmitted and received (2-3 per sec)
         # 10 is all info.
         # 11 is more than all info.  ;)
-        "debugLevel": 1,
+        # "debugLevel": 1,
+
+        # Level     Numeric  debugLevel_equiv
+        #
+        # CRITICAL  50
+        # ERROR     40        0     no output other than errors.
+        # WARNING   30
+        # INFO      20        1     just the most useful info.
+        # INFO2     19        2     add debugging info
+        # INFO3     18        3     add debugging info
+        # INFO4     17        4     add debugging info
+        # INFO5     16        5     add debugging info
+        # INFO6     15        6     add debugging info
+        # INFO7     14        7     add debugging info
+        # INFO8     13        8     add debugging info
+        # INFO9     12        9     includes raw RS-485 msgs tx and rx (2-3 per sec)
+        # DEBUG     10       10     all info.
+        # DEBUG2     9       11     more than all info.  ;)
+
+        "logLevel": 20,
 
         # Choose whether to display milliseconds after time on each line of debug info.
         "displayMilliseconds": false,
@@ -242,7 +230,7 @@
         # parameter below.
         # If you're using a non-USB adapter like an RS485 shield, the value may need to
         # be something like '/dev/serial0'.
-        "port": "/dev/serial/by-id/usb-Silicon_Labs_CP2104_USB_to_UART_Bridge_Controller_011AB253-if00-port0"
+        "port": "/dev/ttyUSB0"
 
       },
       "TCP": {
@@ -280,7 +268,7 @@
     # - Outside Scheduled Charging, charge at unscheduled charge rate
     "policy":{
       "engine":{
-        "policyCheckInterval": 10
+        "policyCheckInterval": 30
       },
       # NOTE: Override and Extend are mutually exclusive options. Once you override, you
       # can no longer extend the inbuilt policy.
@@ -290,25 +278,6 @@
         #
         # They should primarily be used to abort charging when necessary.
         "emergency":[
-         { "name": "Charge Now with Grid power limit",
-           "match": [
-               "settings.chargeNowAmps",
-               "settings.chargeNowTimeEnd",
-               "settings.chargeNowTimeEnd",
-           ],
-           "condition": ["gt", "gt", "gt"],
-           "value": [0, 0, "now"],
-           "background_task": "checkMaxPowerFromGrid",
-           "charge_amps": "settings.chargeNowAmps",
-           "charge_limit": "config.chargeNowLimit"},
-
-         { "name": "Scheduled Charging with Grid power limit",
-           "match": [ "checkScheduledCharging()" ],
-           "condition": [ "eq" ],
-           "value": [ 1 ],
-           "background_task": "checkMaxPowerFromGrid",
-           "charge_amps": "settings.scheduledAmpsMax",
-           "charge_limit": "config.scheduledLimit"},
         ],
         # Rules in the before section here are evaluated after the Charge Now rule
         "before":[
@@ -411,7 +380,25 @@
               "GreenEnergy": false,
               "SlavePower": false,
               "SlaveStatus": false,
-              "DebugLogLevelGreaterThan": 10
+              "DebugLogLevelGreaterThan": 1
+          }
+        },
+        "Sentry": {
+          "enabled": true,
+	  # The DSN can be found in Sentry under SDK Setup of a project
+	  "DSN": "",
+          # The mute parameter allows turning specific logging on or off.
+          # In the example below, charge sessions are logged, but not the
+          # regular charger status messages. These are valid under any of the
+          # logging modules
+          # For the debug output, you can mute Log Levels greater than the 
+          # value specified here.
+          "mute":{
+              "ChargeSessions": false,
+              "GreenEnergy": false,
+              "SlavePower": false,
+              "SlaveStatus": false,
+              "DebugLogLevelGreaterThan": 1
           }                 
         },
         "CSV": {
@@ -433,13 +420,10 @@
         },
         "MySQL": {
             "enabled": false,
-            "host": "localhost",
-            "database": "TWCManager",
-            "username": "",
-            "password": "",
-            "whenToAcumulate": "hours",
-            "numberToAcumulate": 1,
-            "purgeAcumulated": false,
+            "host": "1.2.3.4",
+            "database": "twcmanager",
+            "username": "twcmanager",
+            "password": "twcmanager"
         },
         # SQLite is only in prototype phase at this point. More work required
         # before this will be a working logging target
@@ -447,45 +431,6 @@
             "enabled": false,
             "path": "/etc/twcmanager/twcmanager.sqlite"
         }
-    },
-    "pricing":{
-        "policy": {
-            # The multiPrice policy determines what we do when we have multiple
-            # pricing modules enabled. This might happen if your import and export
-            # pricing is tracked by different modules (for example, static export)
-            # and dynamic import).
-            # The default is to add all prices together.
-            # Other options are:
-            #  - First: Takes the first non-zero value from the queried modules
-            "multiPrice": "add"
-        },
-        "aWATTar": {
-            # Enable this module if you are a customer of aWATTar in Austria
-            "enabled": false
-        },
-        "Static": {
-            # The static pricing module allows you to specify static pricing, if
-            # your utility or provider do not provide a dynamic API. This still
-            # allows leveraging of pricing-related policy, even without an API.
-
-            "enabled": false,
-
-            # At this point, we only provide flat peak pricing, however future
-            # revisions should provide better tunability
-            # Pricing should be in units (dollar, euro, etc) per-kWh notation
-            "peak": {
-                "import": 0.20,
-                "export": 0.09
-            }
-        },
-        "PVPCes": {
-            # Enable this module if you are a customer of PVPC in Spain
-            # select your tarif 2.0A - 2.0DHA - 2.0DHS
-            "enabled": false,
-            "tarif": "2.0DHA",
-            "token": ""
-        }
-
     },
     "sources":{
         # This section is where we configure the various sources that we retrieve our generation and consumption
@@ -513,7 +458,7 @@
         },
         "Fronius": {
             "enabled": false,
-            "serverIP": "192.168.0.17"
+            "serverIP": "192.168.1.2"
         },
         "HASS": {
       # The HASS module allows fetching of consumption and generation statistics from HomeAssistant sensors.
@@ -546,7 +491,7 @@
         "Powerwall2": {
           "enabled": false,
           "serverIP": "192.168.1.2",
-      # Password is optional. Specify it if authentication is enabled.
+      # Password is required starting in firmware 20.49.0
           "password": "test123",
       # The following value specifies the minimum battery level of the 
       # Powerwall2 before the car will be able to charge. This avoids a
@@ -589,23 +534,10 @@
           "serverIP": "192.168.1.2",
           "serverPort": "8080"
         },
+      # The Efergy server allows fetching of consumption from https://engage.efergy.com/ token is needed
         "Efergy": {
             "enabled": false,
-            "token": ""
-        },
-      # The SCT013 module allows to get the consumption and generation through current sensors SCT-013
-      # SCT-03 should be connected to arduino analog IN pins
-      # Consumption: A0, A1, A2
-      # Generation: A3, A4, A5
-      # For single phase just A0 and A3 should be used
-      # Arduino could be connected to the raspberry through USB or using an esp8266 wifi 
-      # configure ardinoPort for USB or arduinoIP for esp8266 wifi
-        "SCT013": {
-            "enabled": false,
-            "consumption": true,
-            "generation": false,
-            "arduinoPort": "/dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0"
-            #"arduinoIP": "None"
+            "token": "xx"
         }
 
     },
