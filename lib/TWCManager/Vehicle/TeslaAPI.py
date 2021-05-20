@@ -226,6 +226,7 @@ class TeslaAPI:
             "grant_type": "refresh_token",
             "refresh_token": self.getCarApiRefreshToken(),
         }
+        now = time.time()
         req = None
         try:
             req = requests.post(self.refreshURL, headers=headers, json=data)
