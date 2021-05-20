@@ -164,6 +164,7 @@ def CreateHTTPHandlerClass(master):
                 energyOffset = int(master.queryGreenEnergyWhDay(day,i))
                 ampsOffset = round(master.convertWattsToAmps(energyOffset),2)
                 futureColor=""
+                today = settings.get(day, {})
                 if pricesI.get("next"+day,None) != None:
                    day = "next"+day
                    futureColor = ";color:blue"
@@ -174,7 +175,6 @@ def CreateHTTPHandlerClass(master):
                    dayYn=schedule[dayTn-1]
                 else:
                    dayYn=schedule[6]
-                today = settings.get(day, {})
                 yesterday = settings.get(dayYn, {})
                 curday = settings.get("Common", {})
                 if (settings.get("schedulePerDay", 0)):
