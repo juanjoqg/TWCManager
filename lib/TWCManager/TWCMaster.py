@@ -111,6 +111,7 @@ class TWCMaster:
         blnUseScheduledAmps = 0
         hourNow = ltNow.tm_hour + (ltNow.tm_min / 60)
         timeSettings = self.getScheduledAmpsTimeFlex()
+
         startHour = timeSettings[0]
         endHour = timeSettings[1]
         daysBitmap = timeSettings[2]
@@ -122,7 +123,8 @@ class TWCMaster:
             and daysBitmap > 0
         ):
             self.debugLog(10, "TWCMaster", "Schedule Charging Start: "+str(startHour)+" End: "+str(endHour))
-            if startHour > endHour:
+            # We should check the start hour and end hour originaly scheduled 
+            if self.getScheduledAmpsStartHour() > self.getScheduledAmpsEndHour():
                 # We have a time like 8am to 7am which we must interpret as the
                 # 23-hour period after 8am or before 7am. Since this case always
                 # crosses midnight, we only ensure that scheduledAmpsDaysBitmap
@@ -133,8 +135,9 @@ class TWCMaster:
                 yesterday = ltNow.tm_wday - 1
                 if yesterday < 0:
                     yesterday += 7
-                if (hourNow >= startHour and (daysBitmap & (1 << ltNow.tm_wday))) or (
-                    hourNow < endHour and (daysBitmap & (1 << yesterday))
+                if ((startHour > endHour and (hourNow >= startHour and (daysBitmap & (1 << ltNow.tm_wday)))) or
+                    (startHour < endHour and (hourNow >= startHour and (daysBitmap & yesterday))) or
+                    (hourNow < endHour and (daysBitmap & (1 << yesterday)))
                 ):
                     blnUseScheduledAmps = 1
             else:
