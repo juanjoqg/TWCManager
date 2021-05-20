@@ -115,18 +115,21 @@ class SCT013:
                          txt2 = txt2.replace(' ','')
                          if not txt2:
                             self.consumedW=0
+                         elif self.threePhases:
+                            # Three Phases convertAmps will return the watts * 3 
+                            self.consumedW=self.master.convertAmpsToWatts(float(txt2))/3
                          else:
                             self.consumedW=self.master.convertAmpsToWatts(float(txt2))
                       if txt.index("IrmsA1 = ") and self.threePhases:
                          txt2 = txt[txt.find("IrmsA1 = ")+9:txt.find(" EndA1")]
                          txt2 = txt2.replace(' ','')
                          if txt2:
-                            self.consumedW=self.consumedW+self.master.convertAmpsToWatts(float(txt2))
+                            self.consumedW=self.consumedW+self.master.convertAmpsToWatts(float(txt2))/3
                       if txt.index("IrmsA2 = ") and self.threePhases:
                          txt2 = txt[txt.find("IrmsA2 = ")+9:txt.find(" EndA2")]
                          txt2 = txt2.replace(' ','')
                          if txt2:
-                            self.consumedW=self.consumedW+self.master.convertAmpsToWatts(float(txt2))
+                            self.consumedW=self.consumedW+self.master.convertAmpsToWatts(float(txt2))/3
                 except:
                    self.master.debugLog(10, "SCT013","Phase consumption not found")
                    self.consumedW=self.consumedW
@@ -138,18 +141,21 @@ class SCT013:
                          txt3 = txt3.replace(' ','')
                          if not txt3:
                             self.generatedW=0
+                         elif self.threePhases:
+                            # Three Phases convertAmps will return the watts * 3 
+                            self.generatedW=self.master.convertAmpsToWatts(float(txt3))/3
                          else:
                             self.generatedW=self.master.convertAmpsToWatts(float(txt3))
                       if txt.index("IrmsA4 = ") and self.threePhases:
                          txt3 = txt[txt.find("IrmsA4 = ")+9:txt.find(" EndA4")]
                          txt3 = txt3.replace(' ','')
                          if txt3:
-                            self.generatedW=self.generatedW+self.master.convertAmpsToWatts(float(txt3))
+                            self.generatedW=self.generatedW+self.master.convertAmpsToWatts(float(txt3))/3
                       if txt.index("IrmsA5 = ") and self.threePhases:
                          txt3 = txt[txt.find("IrmsA5 = ")+9:txt.find(" EndA5")]
                          txt3 = txt3.replace(' ','')
                          if txt3:
-                            self.generatedW=self.generatedW+self.master.convertAmpsToWatts(float(txt3))
+                            self.generatedW=self.generatedW+self.master.convertAmpsToWatts(float(txt3))/3
                 except:
                    self.master.debugLog(10, "SCT013","Phase generation not found")
                    self.generatedW=self.generatedW
