@@ -480,9 +480,11 @@
         },
         "PVPCes": {
             # Enable this module if you are a customer of PVPC in Spain
-            # select your tarif 2.0A - 2.0DHA - 2.0DHS
+            # select your tarif 2.0A - 2.0DHA - 2.0DHS - IndexAvgHour
+            # commercialDif is a fix price (dollar, euro, etc) added per KWh 
             "enabled": false,
             "tarif": "2.0DHA",
+            "commercialDif": 0.006,
             "token": ""
         }
 
