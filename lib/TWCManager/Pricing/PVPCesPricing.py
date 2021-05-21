@@ -22,6 +22,7 @@ class PVPCesPricing:
     headers = {}
     weekImportPrice = {}
     tarif = "2.0A"
+    comDif = 0
 
     def __init__(self, master):
 
@@ -39,6 +40,7 @@ class PVPCesPricing:
 
         self.status = self.configPvpc.get("enabled", self.status)
         self.tarif = self.configPvpc.get("tarif","2.0A")
+        self.comDif = self.configPvpc.get("commercialDif",0)
         self.debugLevel = self.configConfig.get("debugLevel", 0)
 
         token=self.configPvpc.get("token")
@@ -122,6 +124,8 @@ class PVPCesPricing:
                url = "https://api.esios.ree.es/indicators/1014?start_date="+ini+"&end_date="+end
             elif self.tarif == "2.0DHS":
                url = "https://api.esios.ree.es/indicators/1015?start_date="+ini+"&end_date="+end
+            elif self.tarif == "IndexAvgHour":
+               url = "https://api.esios.ree.es/indicators/10211?start_date="+ini+"&end_date="+end
             else:
                url = "https://api.esios.ree.es/indicators/1013?start_date="+ini+"&end_date="+end
 
@@ -182,9 +186,9 @@ class PVPCesPricing:
                          elif int(str(r.json()['indicator']['values'][day*24+hour+desfase]['datetime'])[11:13]) < hour:
                             desfase=desfase+1
                             self.master.debugLog(4,"$PVPCes","Winter time change: "+str(r.json()['indicator']['values'][day*24+hour+desfase]['datetime']))
-                            self.weekImportPrice[sufix+days[i]][str(hour)]= round(r.json()['indicator']['values'][day*24+hour+desfase]['value']/1000,5)
+                            self.weekImportPrice[sufix+days[i]][str(hour)]= round(r.json()['indicator']['values'][day*24+hour+desfase]['value']/1000+self.comDif,5)
                          else:
-                            self.weekImportPrice[sufix+days[i]][str(hour)]= round(r.json()['indicator']['values'][day*24+hour+desfase]['value']/1000,5)
+                            self.weekImportPrice[sufix+days[i]][str(hour)]= round(r.json()['indicator']['values'][day*24+hour+desfase]['value']/1000+self.comDif,5)
                       except Exception as e:
                          self.master.debugLog(4,"$PVPCes","Falta alguna hora: "+str(hour))
                       
