@@ -859,6 +859,7 @@ class TWCMaster:
                     "There was an exception whilst loading settings file "
                     + self.config["config"]["settingsPath"]
                     + "/settings.json",
+                    + " causa: " + e,
                 )
                 self.debugLog(
                     1,

@@ -120,12 +120,16 @@ class PVPCesPricing:
             ini=str(lastweek.year)+"-"+str(lastweek.month)+"-"+str(lastweek.day)+"T"+"00:00:00"
             end=str(tomorrow.year)+"-"+str(tomorrow.month)+"-"+str(tomorrow.day)+"T"+"23:00:00"
             
+            priceXhour=1
             if self.tarif == "2.0DHA":
                url = "https://api.esios.ree.es/indicators/1014?start_date="+ini+"&end_date="+end
             elif self.tarif == "2.0DHS":
                url = "https://api.esios.ree.es/indicators/1015?start_date="+ini+"&end_date="+end
             elif self.tarif == "IndexAvgHour":
                url = "https://api.esios.ree.es/indicators/10211?start_date="+ini+"&end_date="+end
+            if self.tarif == "2.0TD":
+               url = "https://api.esios.ree.es/indicators/10391?start_date="+ini+"&end_date="+end
+               priceXhour=5
             else:
                url = "https://api.esios.ree.es/indicators/1013?start_date="+ini+"&end_date="+end
 
@@ -154,7 +158,7 @@ class PVPCesPricing:
                 )
                 return False
 
-            if r.json() and len(r.json()['indicator']['values']) >= (24*7-1):
+            if r.json() and len(r.json()['indicator']['values']) >= ((24*7-1)*priceXhour):
               #Update settings with the new prices info for week
               self.weekImportPrice = {}
               ltNow = time.localtime()
@@ -169,7 +173,7 @@ class PVPCesPricing:
                 desfase=0
                 for day in range(0,8):
                    sufix = ""
-                   if day > 6 and len(r.json()['indicator']['values'])>7*24:
+                   if day > 6 and len(r.json()['indicator']['values'])>7*24*priceXhour:
                       #This is tomorrow we add the "next" sufix to the day name 
                       sufix = "next"
                    elif day > 6:
@@ -179,16 +183,16 @@ class PVPCesPricing:
                     
                    for hour in range(0,24):
                       try:
-                         if int(str(r.json()['indicator']['values'][day*24+hour+desfase]['datetime'])[11:13]) > hour:
+                         if int(str(r.json()['indicator']['values'][(day*24+hour+desfase)*priceXhour]['datetime'])[11:13]) > hour:
                             self.weekImportPrice[sufix+days[i]][str(hour)]= 0
                             desfase=desfase-1
-                            self.master.debugLog(4,"$PVPCes","Summer time change: "+str(r.json()['indicator']['values'][day*24+hour+desfase]['datetime']))
-                         elif int(str(r.json()['indicator']['values'][day*24+hour+desfase]['datetime'])[11:13]) < hour:
+                            self.master.debugLog(4,"$PVPCes","Summer time change: "+str(r.json()['indicator']['values'][(day*24+hour+desfase)*priceXhour]['datetime']))
+                         elif int(str(r.json()['indicator']['values'][(day*24+hour+desfase)*priceXhour]['datetime'])[11:13]) < hour:
                             desfase=desfase+1
-                            self.master.debugLog(4,"$PVPCes","Winter time change: "+str(r.json()['indicator']['values'][day*24+hour+desfase]['datetime']))
-                            self.weekImportPrice[sufix+days[i]][str(hour)]= round(r.json()['indicator']['values'][day*24+hour+desfase]['value']/1000+self.comDif,5)
+                            self.master.debugLog(4,"$PVPCes","Winter time change: "+str(r.json()['indicator']['values'][(day*24+hour+desfase)*priceXhour]['datetime']))
+                            self.weekImportPrice[sufix+days[i]][str(hour)]= round(r.json()['indicator']['values'][(day*24+hour+desfase)*priceXhour]['value']/1000+self.comDif,5)
                          else:
-                            self.weekImportPrice[sufix+days[i]][str(hour)]= round(r.json()['indicator']['values'][day*24+hour+desfase]['value']/1000+self.comDif,5)
+                            self.weekImportPrice[sufix+days[i]][str(hour)]= round(r.json()['indicator']['values'][(day*24+hour+desfase)*priceXhour]['value']/1000+self.comDif,5)
                       except Exception as e:
                          self.master.debugLog(4,"$PVPCes","Falta alguna hora: "+str(hour))
                       
@@ -198,7 +202,7 @@ class PVPCesPricing:
                       i=0
 
                 self.importPrice = float(
-                       r.json()['indicator']['values'][6*24+now.hour]['value']
+                       r.json()['indicator']['values'][(6*24+now.hour)*priceXhour]['value']
                   )
                 # Convert MWh price to KWh
                 self.importPrice = round(self.importPrice / 1000,5)
