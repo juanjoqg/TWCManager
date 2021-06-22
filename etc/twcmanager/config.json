@@ -484,7 +484,7 @@
             # commercialDif is a fix price (dollar, euro, etc) added per KWh 
             "enabled": false,
             "tarif": "2.0DHA",
-            "commercialDif": 0.006,
+            "commercialDif": 0.0,
             "token": ""
         }
 
